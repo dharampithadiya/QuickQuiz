@@ -7,21 +7,20 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ statuses }) => {
+  // console.log(statuses);
+  const EachQPer = 100 / statuses.length;
+  const Result = statuses.reduce((res, c) => {
+    res[c] += EachQPer;
+    return res;
+  }, { "pending": 0, "correct": 0, "wrong": 0 });
   return (
-    <div className="flex gap-1.5 w-full h-2.5">
-      {statuses.map((status, idx) => {
-        let bgColor = "bg-slate-200";
-        if (status === 'correct') bgColor = "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.3)]";
-        if (status === 'wrong') bgColor = "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]";
-        
-        return (
-          <div 
-            key={idx} 
-            className={`flex-1 rounded-full transition-all duration-500 ${bgColor}`}
-          />
-        );
-      })}
-    </div>
+    <>
+      <div className="w-full flex rounded-full overflow-hidden text-xs font-medium uppercase text-center">
+        <div className={`w-[${Result.correct}%] bg-green-500`}>{Result.correct}%</div>
+        <div className={`w-[${Result.wrong}%] bg-red-500`}>{Result.wrong}%</div>
+        <div className={`w-[${Result.pending}%] bg-gray-200`}>{Result.pending}%</div>
+      </div>
+    </>
   );
 };
 

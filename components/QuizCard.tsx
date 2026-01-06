@@ -43,11 +43,11 @@ const QuizCard: React.FC<QuizCardProps> = ({
   return (
     <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-8 md:p-10 transition-all duration-300 transform animate-in fade-in slide-in-from-bottom-8">
       <div className="flex flex-col gap-6 mb-8">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <span className="px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold tracking-widest uppercase">
             Question {questionNumber} of {totalQuestions}
           </span>
-          <div className="w-48">
+          <div className="flex-grow">
             <ProgressBar statuses={answerStatuses} />
           </div>
         </div>
