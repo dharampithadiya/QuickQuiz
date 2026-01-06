@@ -1,0 +1,5 @@
+{
+  "name": "Gemini-Powered MCQ Master",
+  "description": "A high-performance quiz application featuring interactive feedback, progress tracking, and AI-driven question generation using the Gemini API.",
+  "requestFramePermissions": []
+}
