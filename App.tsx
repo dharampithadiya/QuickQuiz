@@ -1,6 +1,6 @@
 
-import React, { useState, useCallback } from 'react';
-import { Question, AppView } from './types';
+import React, { useState, useCallback, useMemo } from 'react';
+import { Question, AppView, AnswerStatus } from './types';
 import { DEFAULT_QUESTIONS } from './data';
 import QuizCard from './components/QuizCard';
 import ResultView from './components/ResultView';
@@ -11,18 +11,15 @@ const App: React.FC = () => {
   const [view, setView] = useState<AppView>('home');
   const [questions, setQuestions] = useState<Question[]>(DEFAULT_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [topic, setTopic] = useState('');
+  const [userAnswers, setUserAnswers] = useState<(number | null)[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [topic, setTopic] = useState('');
 
   const startQuiz = useCallback((customQuestions?: Question[]) => {
-    if (customQuestions) {
-      setQuestions(customQuestions);
-    } else {
-      setQuestions(DEFAULT_QUESTIONS);
-    }
+    const activeQuestions = customQuestions || DEFAULT_QUESTIONS;
+    setQuestions(activeQuestions);
+    setUserAnswers(new Array(activeQuestions.length).fill(null));
     setCurrentIndex(0);
-    setScore(0);
     setView('quiz');
   }, []);
 
@@ -40,10 +37,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAnswer = (isCorrect: boolean) => {
-    if (isCorrect) {
-      setScore(prev => prev + 1);
-    }
+  const handleAnswer = (selectedIndex: number) => {
+    const updated = [...userAnswers];
+    updated[currentIndex] = selectedIndex;
+    setUserAnswers(updated);
   };
 
   const handleNext = () => {
@@ -53,6 +50,25 @@ const App: React.FC = () => {
       setView('result');
     }
   };
+
+  const handleBack = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
+  };
+
+  const score = useMemo(() => {
+    return userAnswers.reduce((acc, ans, idx) => {
+      return (ans === questions[idx].Answer) ? acc + 1 : acc;
+    }, 0);
+  }, [userAnswers, questions]);
+
+  const answerStatuses = useMemo((): AnswerStatus[] => {
+    return userAnswers.map((ans, idx) => {
+      if (ans === null) return 'pending';
+      return ans === questions[idx].Answer ? 'correct' : 'wrong';
+    });
+  }, [userAnswers, questions]);
 
   const renderHome = () => (
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4 animate-in fade-in duration-700">
@@ -83,13 +99,13 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-3">
           <input 
             type="text" 
-            placeholder="Enter a topic (e.g. Greek Mythology)"
+            placeholder="Enter a topic (e.g. World History)"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="w-full px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-400 focus:outline-none transition-all"
+            className="w-full px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-400 focus:outline-none transition-all shadow-sm"
           />
           <button
             onClick={handleGenerateAIQuiz}
@@ -119,6 +135,9 @@ const App: React.FC = () => {
             totalQuestions={questions.length}
             onAnswer={handleAnswer}
             onNext={handleNext}
+            onBack={handleBack}
+            answerStatuses={answerStatuses}
+            userAnswerIdx={userAnswers[currentIndex]}
           />
         )}
 
@@ -132,7 +151,7 @@ const App: React.FC = () => {
       </div>
       
       <footer className="mt-auto py-8 text-slate-400 text-sm font-medium">
-        Powered by Gemini Pro • High Performance Quiz Engine
+        Powered by Gemini Pro • Interactive MCQ Platform
       </footer>
     </div>
   );
