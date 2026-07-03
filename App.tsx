@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Question, AppView, AnswerStatus } from './types';
-import { DEFAULT_QUESTIONS } from './questions/computer1';
+import { DEFAULT_QUESTIONS } from './questions/default';
 import QuizCard from './components/QuizCard';
 import ResultView from './components/ResultView';
 import { BrainIcon } from './components/Icons';
